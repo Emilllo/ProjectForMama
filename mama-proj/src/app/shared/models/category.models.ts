@@ -1,7 +1,8 @@
 export interface Category {
   id: number;
   name: string;
-  description: string;
+  description?: string | null;
+  round_id?: number | null;
 }
 
 export interface CreateCategoryRequest {

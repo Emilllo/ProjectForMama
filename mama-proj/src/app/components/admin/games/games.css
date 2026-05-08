@@ -1,0 +1,258 @@
+.games-page {
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin-bottom: 8px;
+}
+
+.breadcrumbs {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.create-game-panel,
+.saved-game-panel {
+  width: 100%;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  margin-bottom: 8px;
+}
+
+.rounds-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.round-card {
+  padding: 18px;
+  border: 1px solid rgba(80, 130, 255, 0.25);
+  border-radius: var(--radius-md);
+  background: rgba(4, 12, 30, 0.55);
+}
+
+.round-title {
+  margin-bottom: 16px;
+  color: var(--blue-light);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.categories-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.category-checkbox-row {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(80, 130, 255, 0.22);
+  border-radius: var(--radius-sm);
+  background: rgba(8, 18, 42, 0.72);
+  cursor: pointer;
+}
+
+.category-checkbox-row:hover {
+  border-color: var(--blue);
+}
+
+.category-checkbox-row.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.category-checkbox-row input {
+  margin-top: 4px;
+}
+
+.category-name {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.category-description {
+  margin-top: 5px;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.bottom-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.saved-game-panel {
+  margin-top: 24px;
+}
+
+.game-tree {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tree-round {
+  margin-top: 14px;
+  color: var(--blue-light);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.tree-category {
+  margin-left: 28px;
+  color: var(--text-soft);
+  font-size: 15px;
+}
+
+.error-message {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ff7b8a;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.games-list-panel {
+  margin-bottom: 24px;
+}
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.game-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  border: 1px solid rgba(80, 130, 255, 0.22);
+  border-radius: var(--radius-md);
+  background: rgba(4, 12, 30, 0.55);
+}
+
+.game-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--blue-light);
+}
+
+.game-subtitle {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.game-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(80, 130, 255, 0.25);
+  background: rgba(4, 12, 30, 0.75);
+  color: var(--text-main);
+  font-size: 16px;
+}
+
+.icon-button:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 14px rgba(47, 134, 255, 0.22);
+}
+
+.delete-button {
+  color: var(--red);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.game-item-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.game-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.game-tree {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tree-round {
+  margin-top: 10px;
+  color: var(--blue-light);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.tree-category {
+  margin-left: 28px;
+  color: var(--text-soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.tree-category-description {
+  color: var(--text-muted);
+}
+
+@media (max-width: 800px) {
+  .page-header,
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .bottom-actions {
+    justify-content: stretch;
+  }
+
+  .bottom-actions .btn {
+    width: 100%;
+  }
+}

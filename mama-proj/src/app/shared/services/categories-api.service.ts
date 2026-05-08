@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Category, CreateCategoryRequest } from '../models/category.models';
+import { SetCategoryRoundResponse } from '../models/game.models';
 
 @Injectable({
   providedIn: 'root'
@@ -25,5 +26,16 @@ export class CategoriesApiService {
 
   deleteCategory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  setCategoryRound(categoryId: number, roundId: number): Observable<SetCategoryRoundResponse> {
+    return this.http.put<SetCategoryRoundResponse>(
+      `${this.apiUrl}/${categoryId}/round`,
+      { round_id: roundId }
+    );
+  }
+
+  clearCategoryRound(categoryId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${categoryId}/round`);
   }
 }

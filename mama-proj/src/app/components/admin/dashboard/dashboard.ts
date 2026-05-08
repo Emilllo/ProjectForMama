@@ -33,7 +33,7 @@ export class Dashboard {
     {
       title: 'Игры',
       route: '/admin/dashboard/games',
-      icon: ''
+      icon: '🎮'
     }
   ];
 }
