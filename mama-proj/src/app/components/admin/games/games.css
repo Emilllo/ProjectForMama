@@ -241,6 +241,13 @@ button:disabled {
   color: var(--text-muted);
 }
 
+.category-disabled-reason {
+  margin-top: 6px;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 @media (max-width: 800px) {
   .page-header,
   .section-header {

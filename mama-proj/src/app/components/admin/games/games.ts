@@ -154,11 +154,44 @@ export class Games implements OnInit {
     return round.selectedCategoryIds.includes(categoryId);
   }
 
-  isCategoryDisabled(categoryId: number, currentRoundIndex: number): boolean {
+  isCategoryDisabled(category: Category, currentRoundIndex: number): boolean {
+    if (category.round_id !== null && category.round_id !== undefined) {
+      return true;
+    }
+
     return this.draftRounds.some((round, index) =>
       index !== currentRoundIndex &&
-      round.selectedCategoryIds.includes(categoryId)
+      round.selectedCategoryIds.includes(category.id)
     );
+  }
+
+  getCategoryDisabledReason(category: Category, currentRoundIndex: number): string {
+    if (category.round_id !== null && category.round_id !== undefined) {
+      const gameId = this.getGameIdByRoundId(category.round_id);
+
+      if (gameId !== null) {
+        return `Already used in game #${gameId}`;
+      }
+
+      return 'Already used in another game';
+    }
+
+    const isSelectedInAnotherDraftRound = this.draftRounds.some((round, index) =>
+      index !== currentRoundIndex &&
+      round.selectedCategoryIds.includes(category.id)
+    );
+
+    if (isSelectedInAnotherDraftRound) {
+      return 'Already selected in another new round';
+    }
+
+    return '';
+  }
+
+  private getGameIdByRoundId(roundId: number): number | null {
+    const gameDetail = this.gameDetails.find(detail => detail.roundid === roundId);
+
+    return gameDetail?.gameid ?? null;
   }
 
   toggleCategorySelection(round: GameDraftRound, categoryId: number): void {
@@ -171,9 +204,28 @@ export class Games implements OnInit {
   }
 
   canSaveGame(): boolean {
-    return this.draftRounds.length > 0 &&
-      this.draftRounds.every(round => round.selectedCategoryIds.length > 0) &&
-      !this.isSaving;
+    if (this.draftRounds.length === 0 || this.isSaving) {
+      return false;
+    }
+
+    for (const round of this.draftRounds) {
+      if (round.selectedCategoryIds.length === 0) {
+        return false;
+      }
+
+      const hasUsedCategory = round.selectedCategoryIds.some(categoryId => {
+        const category = this.categories.find(category => category.id === categoryId);
+
+        return category?.round_id !== null &&
+          category?.round_id !== undefined;
+      });
+
+      if (hasUsedCategory) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   deleteGame(id: number): void {
@@ -190,6 +242,7 @@ export class Games implements OnInit {
         }
 
         this.cdr.detectChanges();
+        window.location.reload();
       },
       error: error => {
         console.error(error);
@@ -265,6 +318,7 @@ export class Games implements OnInit {
 
       this.loadCategories();
       this.loadGames();
+      window.location.reload();
     } catch (error) {
       console.error(error);
       this.errorMessage = 'Failed to save game';

@@ -120,23 +120,29 @@
                 @for (category of categories; track category.id) {
                   <label
                     class="category-checkbox-row"
-                    [class.disabled]="isCategoryDisabled(category.id, roundIndex)"
-                  >
+                    [class.disabled]="isCategoryDisabled(category, roundIndex)"
+                    >
                     <input
-                      type="checkbox"
-                      [checked]="isCategorySelected(round, category.id)"
-                      [disabled]="isCategoryDisabled(category.id, roundIndex)"
-                      (change)="toggleCategorySelection(round, category.id)"
+                        type="checkbox"
+                        [checked]="isCategorySelected(round, category.id)"
+                        [disabled]="isCategoryDisabled(category, roundIndex)"
+                        (change)="toggleCategorySelection(round, category.id)"
                     />
 
                     <div>
-                      <div class="category-name">
+                        <div class="category-name">
                         {{ category.name }}
-                      </div>
+                        </div>
 
-                      <div class="category-description">
+                        <div class="category-description">
                         {{ category.description || 'No description' }}
-                      </div>
+                        </div>
+
+                        @if (isCategoryDisabled(category, roundIndex)) {
+                        <div class="category-disabled-reason">
+                            {{ getCategoryDisabledReason(category, roundIndex) }}
+                        </div>
+                        }
                     </div>
                   </label>
                 }
