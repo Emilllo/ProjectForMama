@@ -1,0 +1,40 @@
+.join-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.join-card {
+  width: 100%;
+  max-width: 520px;
+}
+
+.join-card h1 {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.join-card p {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.join-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.join-actions .btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: 17px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

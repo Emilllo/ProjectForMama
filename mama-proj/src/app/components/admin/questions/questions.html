@@ -1,0 +1,88 @@
+<div class="questions-page">
+  <header class="page-header">
+    <div>
+      <h1>Questions</h1>
+      <div class="breadcrumbs">Admin › Questions</div>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="goToCreateQuestion()"
+    >
+      + Create question
+    </button>
+  </header>
+
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <section class="quiz-card questions-panel">
+    @if (isLoading) {
+      <p>Loading questions...</p>
+    }
+
+    @if (!isLoading && questions.length === 0) {
+      <p>No questions yet.</p>
+    }
+
+    <div class="questions-list">
+      @for (question of questions; track question.id) {
+        <div class="question-item">
+          <div class="question-main">
+            <div class="question-title">
+              {{ question.question }}
+            </div>
+
+            <div class="question-meta">
+              <span class="badge badge-blue">
+                {{ question.points_per_question }} points
+              </span>
+
+              <span class="badge">
+                {{ getCategoryName(question.category_id) }}
+              </span>
+
+              <span class="question-id">
+                #{{ question.id }}
+              </span>
+            </div>
+
+            <div class="question-answer">
+              Correct answer:
+              <strong>{{ question.answer || 'No answer' }}</strong>
+            </div>
+
+            @if (question.image) {
+              <div class="question-image">
+                Image: {{ question.image }}
+              </div>
+            }
+          </div>
+
+          <div class="question-actions">
+            <button
+              type="button"
+              class="icon-button edit-button"
+              (click)="goToEditQuestion(question.id)"
+            >
+              ✎
+            </button>
+
+            <button
+              type="button"
+              class="icon-button delete-button"
+              [disabled]="deletingQuestionId === question.id"
+              (click)="deleteQuestion(question.id)"
+            >
+              🗑
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>

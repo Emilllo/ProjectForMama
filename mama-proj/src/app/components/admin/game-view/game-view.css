@@ -1,0 +1,44 @@
+.game-view {
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  color: #222;
+  display: grid;
+  grid-template-rows: 72% 28%;
+  border: 1px solid #222;
+  box-sizing: border-box;
+}
+
+.top-area {
+  display: grid;
+  grid-template-columns: 22% 78%;
+  border-bottom: 1px solid #222;
+}
+
+.answer-panel {
+  border-right: 1px solid #222;
+  padding: 24px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.question-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  font-weight: 700;
+}
+
+.players-area {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.player-card {
+  border-right: 1px solid #222;
+}
+
+.player-card:last-child {
+  border-right: none;
+}

@@ -1,0 +1,42 @@
+<div class="join-page">
+  <div class="join-card quiz-card quiz-card-glow">
+    <h1>Join game</h1>
+    <p>Enter room code and your name</p>
+
+    <div class="form-field">
+      <label class="form-label">Room code</label>
+      <input
+        class="input"
+        
+        placeholder="Enter room code"
+      />
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Player name</label>
+      <input
+        class="input"
+        
+        placeholder="Enter your name"
+      />
+    </div>
+
+    <div class="join-actions">
+      <button
+        type="button"
+        class="btn btn-primary"
+        
+      >
+        Войти
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="goToHome()"
+      >
+        Back to home
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="admin-dashboard">
+  <aside class="admin-sidebar">
+    <div class="sidebar-logo">
+      <div class="quiz-logo-icon">?</div>
+
+      <div>
+        <div class="sidebar-title">QUIZ GAME</div>
+        <div class="sidebar-subtitle">Панель администратора</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+      @for (item of menuItems; track item.route) {
+        <button
+          type="button"
+          class="sidebar-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <span class="sidebar-item-icon">{{ item.icon }}</span>
+          <span>{{ item.title }}</span>
+        </button>
+      }
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">A</div>
+
+      <div>
+        <div class="user-name">Admin</div>
+        <div class="user-role">Администратор</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

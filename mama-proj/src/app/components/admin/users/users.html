@@ -1,0 +1,58 @@
+<div class="users-page">
+  <header class="page-header">
+    <div>
+      <h1>Users</h1>
+      <div class="breadcrumbs">Admin › Users</div>
+    </div>
+
+    <button type="button" class="btn btn-secondary" (click)="loadUsers()">
+      Refresh
+    </button>
+  </header>
+
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <section class="quiz-card users-panel">
+    @if (isLoading) {
+      <p>Loading users...</p>
+    }
+
+    @if (!isLoading && users.length === 0) {
+      <p>No users yet.</p>
+    }
+
+    @if (!isLoading && users.length > 0) {
+      <div class="users-list">
+        @for (user of users; track user.id; let index = $index) {
+          <div class="user-item">
+            <div class="user-rank">
+              #{{ index + 1 }}
+            </div>
+
+            <div class="user-avatar">
+              {{ getUserInitials(user.name) }}
+            </div>
+
+            <div class="user-main">
+              <div class="user-name">
+                {{ user.name }}
+              </div>
+
+              <div class="user-id">
+                ID: {{ user.id }}
+              </div>
+            </div>
+
+            <div class="user-points">
+              {{ user.points }} points
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

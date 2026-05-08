@@ -1,0 +1,139 @@
+<div class="question-create-page">
+  <header class="page-header">
+    <div>
+      <h1>Создание вопроса</h1>
+      <div class="breadcrumbs">Главная › Вопросы › Создание</div>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">
+        Back
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="!canSaveQuestion()"
+        (click)="saveQuestion()"
+      >
+        {{ isSaving ? 'Saving...' : 'Save question' }}
+      </button>
+    </div>
+  </header>
+
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <div class="question-create-grid">
+    <section class="quiz-card form-panel">
+      <h2>Основная информация</h2>
+
+      <div class="form-row two-columns">
+        <div class="form-field">
+          <label class="form-label">Категория *</label>
+
+          <select class="select" [(ngModel)]="categoryId">
+            <option [ngValue]="null">
+              Выберите категорию
+            </option>
+
+            @for (category of categories; track category.id) {
+              <option [ngValue]="category.id">
+                {{ category.name }}
+              </option>
+            }
+          </select>
+
+          @if (isLoadingCategories) {
+            <div class="field-hint">Loading categories...</div>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Стоимость вопроса *</label>
+
+          <input
+            class="input"
+            type="number"
+            [(ngModel)]="pointsPerQuestion"
+            min="0"
+            placeholder="Введите стоимость..."
+          />
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Вопрос *</label>
+
+        <textarea
+          class="textarea question-textarea"
+          [(ngModel)]="question"
+          maxlength="500"
+          placeholder="Введите текст вопроса..."
+        ></textarea>
+
+        <div class="char-counter">
+          {{ question.length }} / 500
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Правильный ответ *</label>
+
+        <input
+          class="input"
+          [(ngModel)]="answer"
+          placeholder="Введите правильный ответ..."
+        />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Image URL</label>
+
+        <input
+          class="input"
+          [(ngModel)]="image"
+          placeholder="Optional image URL"
+        />
+      </div>
+    </section>
+
+    <aside class="quiz-card preview-panel">
+      <h2>Предпросмотр вопроса</h2>
+
+      <div class="preview-card">
+        <div class="preview-top">
+          <span class="badge">
+            {{ getSelectedCategoryName() }}
+          </span>
+
+          <span class="badge badge-blue">
+            {{ pointsPerQuestion }}
+          </span>
+        </div>
+
+        <div class="preview-question">
+          {{ question || 'Текст вопроса будет здесь' }}
+        </div>
+
+        <div class="preview-answer">
+          Правильный ответ:
+          <strong>{{ answer || 'Ответ будет здесь' }}</strong>
+        </div>
+
+        @if (image) {
+          <div class="preview-image-url">
+            Image: {{ image }}
+          </div>
+        }
+      </div>
+
+      <div class="preview-info">
+        Этот вопрос будет сохранён и потом появится в списке вопросов.
+      </div>
+    </aside>
+  </div>
+</div>

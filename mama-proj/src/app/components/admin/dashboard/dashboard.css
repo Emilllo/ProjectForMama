@@ -1,0 +1,136 @@
+.admin-dashboard {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  background: var(--bg-main);
+}
+
+.admin-sidebar {
+  min-height: 100vh;
+  padding: 24px 18px;
+  background: rgba(5, 12, 30, 0.96);
+  border-right: 1px solid rgba(80, 130, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(80, 130, 255, 0.14);
+}
+
+.sidebar-title {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.sidebar-subtitle {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.sidebar-item {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-soft);
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-item:hover,
+.sidebar-item.active {
+  background: linear-gradient(
+    135deg,
+    rgba(47, 134, 255, 0.18),
+    rgba(139, 92, 246, 0.28)
+  );
+  color: var(--text-main);
+}
+
+.sidebar-item-icon {
+  width: 22px;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.sidebar-user {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(80, 130, 255, 0.18);
+  border-radius: var(--radius-md);
+  background: rgba(8, 18, 42, 0.85);
+}
+
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(47, 134, 255, 0.22);
+  border: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.user-name {
+  font-weight: 800;
+}
+
+.user-role {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.admin-main {
+  min-height: 100vh;
+  padding: 28px;
+  overflow: auto;
+}
+
+@media (max-width: 900px) {
+  .admin-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(80, 130, 255, 0.18);
+  }
+
+  .sidebar-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .sidebar-item {
+    width: auto;
+  }
+
+  .sidebar-user {
+    display: none;
+  }
+}

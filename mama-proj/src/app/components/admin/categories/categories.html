@@ -1,0 +1,146 @@
+<div class="categories-page">
+  <header class="page-header">
+    <div>
+      <h1>Categories</h1>
+      <div class="breadcrumbs">Admin › Categories</div>
+    </div>
+  </header>
+
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  <section class="quiz-card categories-panel">
+    @if (isLoading) {
+      <p>Loading categories...</p>
+    }
+
+    @if (!isLoading && categories.length === 0) {
+      <p>No categories yet.</p>
+    }
+
+    <div class="categories-list">
+      @for (category of categories; track category.id) {
+        <div class="category-wrapper">
+          <div class="category-item">
+            <div>
+              <div class="category-name">{{ category.name }}</div>
+              <div class="category-description">
+                {{ category.description || 'No description' }}
+              </div>
+            </div>
+
+            <div class="category-actions">
+              <span class="category-id">#{{ category.id }}</span>
+
+              <button
+                type="button"
+                class="icon-button edit-button"
+                (click)="startEditCategory(category)"
+              >
+                ✎
+              </button>
+
+              <button
+                type="button"
+                class="icon-button delete-button"
+                [disabled]="deletingCategoryId === category.id"
+                (click)="deleteCategory(category.id)"
+              >
+                🗑
+              </button>
+            </div>
+          </div>
+
+          @if (editingCategoryId === category.id) {
+            <section class="edit-category-panel">
+              <h2>Edit category</h2>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label class="form-label">Category name</label>
+                  <input
+                    class="input"
+                    [(ngModel)]="editName"
+                    placeholder="Category name"
+                  />
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">Description</label>
+                  <input
+                    class="input"
+                    [(ngModel)]="editDescription"
+                    placeholder="Category description"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-primary save-button"
+                  [disabled]="!canUpdateCategory()"
+                  (click)="updateCategory(category.id)"
+                >
+                  {{ isUpdating ? 'Saving...' : 'Save' }}
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-secondary save-button"
+                  (click)="cancelEditCategory()"
+                >
+                  Cancel
+                </button>
+              </div>
+            </section>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <button
+    type="button"
+    class="btn btn-primary create-button"
+    (click)="toggleCreateForm()"
+  >
+    + Create new category
+  </button>
+
+  @if (showCreateForm) {
+    <section class="quiz-card create-category-panel">
+      <h2>Create new category</h2>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label">Category name</label>
+          <input
+            class="input"
+            [(ngModel)]="name"
+            placeholder="Example: History"
+          />
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Description</label>
+          <input
+            class="input"
+            [(ngModel)]="description"
+            placeholder="Example: Events and historical facts"
+          />
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-primary save-button"
+          [disabled]="!canCreateCategory()"
+          (click)="createCategory()"
+        >
+          {{ isSaving ? 'Saving...' : 'Create' }}
+        </button>
+      </div>
+    </section>
+  }
+</div>

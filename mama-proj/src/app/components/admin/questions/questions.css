@@ -1,0 +1,137 @@
+.questions-page {
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin-bottom: 8px;
+}
+
+.breadcrumbs {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.questions-panel {
+  width: 100%;
+}
+
+.questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.question-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid rgba(80, 130, 255, 0.22);
+  border-radius: var(--radius-md);
+  background: rgba(4, 12, 30, 0.55);
+}
+
+.question-main {
+  flex: 1;
+}
+
+.question-title {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.question-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.question-id {
+  color: var(--blue-light);
+  font-weight: 800;
+}
+
+.question-answer {
+  margin-top: 14px;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+.question-answer strong {
+  color: var(--green);
+}
+
+.question-image {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.question-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(80, 130, 255, 0.25);
+  background: rgba(4, 12, 30, 0.75);
+  color: var(--text-main);
+  font-size: 16px;
+}
+
+.icon-button:hover {
+  border-color: var(--blue);
+  box-shadow: 0 0 14px rgba(47, 134, 255, 0.22);
+}
+
+.edit-button {
+  color: var(--blue-light);
+}
+
+.delete-button {
+  color: var(--red);
+}
+
+.error-message {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ff7b8a;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 800px) {
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .question-item {
+    flex-direction: column;
+  }
+
+  .question-actions {
+    justify-content: flex-end;
+  }
+}

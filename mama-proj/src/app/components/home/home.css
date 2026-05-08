@@ -1,0 +1,34 @@
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.home-card {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+}
+
+.home-logo {
+  justify-content: center;
+  margin-bottom: 36px;
+}
+
+.home-logo h1 {
+  margin-bottom: 8px;
+}
+
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.home-actions .btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: 17px;
+}
