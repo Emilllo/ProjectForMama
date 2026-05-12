@@ -17,6 +17,10 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'admin/game/:id/play',
+    component: GameView
+  },
+  {
     path: 'admin/dashboard',
     component: Dashboard,
     children: [

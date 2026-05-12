@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Category, CreateCategoryRequest } from '../models/category.models';
 import { SetCategoryRoundResponse } from '../models/game.models';
 

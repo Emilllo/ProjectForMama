@@ -13,6 +13,7 @@ import {
 import { CategoriesApiService } from '../../../shared/services/categories-api.service';
 import { GamesApiService } from '../../../shared/services/games-api.service';
 import { RoundsApiService } from '../../../shared/services/rounds-api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-games',
@@ -41,7 +42,8 @@ export class Games implements OnInit {
     private categoriesApiService: CategoriesApiService,
     private gamesApiService: GamesApiService,
     private roundsApiService: RoundsApiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -325,5 +327,9 @@ export class Games implements OnInit {
       this.isSaving = false;
       this.cdr.detectChanges();
     }
+  }
+
+  startGame(id: number): void {
+    this.router.navigate(['/admin/game', id, 'play']);
   }
 }

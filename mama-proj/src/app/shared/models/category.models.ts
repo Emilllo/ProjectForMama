@@ -9,3 +9,11 @@ export interface CreateCategoryRequest {
   name: string;
   description: string;
 }
+
+export interface CategoryByRound {
+  cat_id: number;
+  cat_name: string;
+  cat_desc?: string | null;
+  round_id: number;
+  game_id: number;
+}

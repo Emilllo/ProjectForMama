@@ -46,14 +46,24 @@
                 <div class="game-subtitle">ID: {{ game.id }}</div>
                 </div>
 
-                <button
-                type="button"
-                class="icon-button delete-button"
-                [disabled]="deletingGameId === game.id"
-                (click)="deleteGame(game.id)"
-                >
-                🗑
-                </button>
+                <div class="game-actions">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="startGame(game.id)"
+                  >
+                    Start game
+                  </button>
+
+                  <button
+                    type="button"
+                    class="icon-button delete-button"
+                    [disabled]="deletingGameId === game.id"
+                    (click)="deleteGame(game.id)"
+                  >
+                    🗑
+                  </button>
+              </div>
             </div>
 
             <div class="game-tree">

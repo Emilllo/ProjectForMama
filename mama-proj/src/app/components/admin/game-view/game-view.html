@@ -1,22 +1,137 @@
-<div class="game-view">
+<div class="game-view-page">
+  <header class="game-header">
+    <div class="quiz-logo">
+      <div class="quiz-logo-icon">?</div>
 
-  <div class="top-area">
-    <div class="answer-panel">
-      <span>Правильный ответ</span>
+      <div>
+        <div class="game-logo-title">QUIZ GAME</div>
+        <span class="badge">Admin view</span>
+      </div>
     </div>
 
-    <div class="question-panel">
-      <span>Экран с вопросами</span>
+    <div class="game-center-title">
+      <div class="text-muted">Game #{{ gameId }}</div>
+      <div class="quiz-points">PLAY</div>
     </div>
-  </div>
 
-  <div class="players-area">
-    <div class="player-card"></div>
-    <div class="player-card"></div>
-    <div class="player-card"></div>
-    <div class="player-card"></div>
-    <div class="player-card"></div>
-    <div class="player-card"></div>
-  </div>
+    <div class="game-status-card">
+      <div>Room code: <strong>{{ roomCode }}</strong></div>
+      <div class="text-muted">Admin control screen</div>
+    </div>
+  </header>
 
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (isLoading) {
+    <section class="quiz-card">
+      <p>Loading game...</p>
+    </section>
+  }
+
+  @if (!isLoading) {
+    <main class="admin-game-layout">
+      <aside class="correct-answer-panel quiz-card">
+        <h2>Correct answer</h2>
+
+        @if (selectedQuestion) {
+          <div class="correct-answer-box">
+            {{ selectedQuestion.answer || 'No answer' }}
+          </div>
+
+          <div class="correct-answer-meta">
+            <div>Category:</div>
+            <strong>{{ selectedCategoryName }}</strong>
+
+            <div>Description:</div>
+            <strong>{{ selectedCategoryDescription || 'No description' }}</strong>
+
+            <div class="mt-sm">Points:</div>
+            <strong>{{ selectedQuestion.points_per_question }}</strong>
+          </div>
+        } @else {
+          <p>Select a question to see the correct answer.</p>
+        }
+      </aside>
+
+      <section class="game-board-panel quiz-card quiz-card-glow">
+        <app-game-board
+          [round]="currentRound"
+          [selectedQuestion]="selectedQuestion"
+          [selectedCategoryName]="selectedCategoryName"
+          (questionSelected)="onQuestionSelected($event)"
+          (backToBoardClicked)="backToBoard()"
+        ></app-game-board>
+      </section>
+
+      <aside class="admin-controls-panel quiz-card">
+        <h2>Admin controls</h2>
+
+        @if (selectedQuestion) {
+          <div class="selected-question-info">
+            <span class="badge">{{ selectedCategoryName }}</span>
+            <span class="badge badge-blue">
+              {{ selectedQuestion.points_per_question }} points
+            </span>
+          </div>
+        } @else {
+          <p>No question selected.</p>
+        }
+
+        <div class="admin-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="!selectedQuestion"
+            (click)="backToBoard()"
+          >
+            Back to board
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-success"
+            [disabled]="!selectedQuestion"
+            (click)="markCorrect()"
+          >
+            + Correct
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger"
+            [disabled]="!selectedQuestion"
+            (click)="markWrong()"
+          >
+            - Wrong
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="goBackToGames()"
+          >
+            Back to games
+          </button>
+        </div>
+
+        @if (adminMessage) {
+          <div class="admin-message">
+            {{ adminMessage }}
+          </div>
+        }
+      </aside>
+    </main>
+
+    <section class="players-panel quiz-card">
+      <h2>Active users</h2>
+
+      <div class="users-placeholder">
+        Users will be connected later.
+      </div>
+    </section>
+  }
 </div>

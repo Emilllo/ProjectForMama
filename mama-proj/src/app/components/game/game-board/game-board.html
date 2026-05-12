@@ -1,0 +1,93 @@
+@if (!selectedQuestion) {
+  <div class="board-screen">
+    @if (!round) {
+      <p>No round selected.</p>
+    }
+
+    @if (round) {
+      <div class="category-board">
+        @for (category of round.categories; track category.id) {
+          <div
+            class="category-row"
+            [class.category-color-0]="getCategoryColorClass(category.id) === 'category-color-0'"
+            [class.category-color-1]="getCategoryColorClass(category.id) === 'category-color-1'"
+            [class.category-color-2]="getCategoryColorClass(category.id) === 'category-color-2'"
+            [class.category-color-3]="getCategoryColorClass(category.id) === 'category-color-3'"
+            [class.category-color-4]="getCategoryColorClass(category.id) === 'category-color-4'"
+            [class.category-color-5]="getCategoryColorClass(category.id) === 'category-color-5'"
+          >
+            <div class="category-cell">
+              <div class="category-name">{{ category.name }}</div>
+
+              @if (category.description) {
+                <div class="category-description">
+                  {{ category.description }}
+                </div>
+              }
+            </div>
+
+            <div
+              class="questions-cells"
+              [style.grid-template-columns]="'repeat(' + questionsColumnCount + ', minmax(120px, 1fr))'"
+            >
+              @if (category.questions.length === 0) {
+                <div class="empty-question-cell">
+                  No questions
+                </div>
+              }
+
+              @for (question of category.questions; track question.id) {
+                <button
+                  type="button"
+                  class="points-cell"
+                  (click)="selectQuestion(question, category.name, category.description)"
+                >
+                  {{ question.points_per_question }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+@if (selectedQuestion) {
+  <div class="selected-question-screen">
+    <div class="selected-question-top">
+      <span class="badge">
+        {{ selectedCategoryName }}
+      </span>
+
+      <span class="badge badge-blue">
+        {{ selectedQuestion.points_per_question }} points
+      </span>
+    </div>
+
+    <div class="timer-circle">
+      20
+      <span>sec</span>
+    </div>
+
+    <h1 class="question-text">
+      {{ selectedQuestion.question }}
+    </h1>
+
+    @if (selectedQuestion.image) {
+      <div class="question-image-url">
+        Image: {{ selectedQuestion.image }}
+      </div>
+    }
+
+    <div class="question-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="backToBoard()"
+      >
+        Back to questions
+      </button>
+    </div>
+  </div>
+}

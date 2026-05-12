@@ -248,6 +248,12 @@ button:disabled {
   font-weight: 700;
 }
 
+.game-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 @media (max-width: 800px) {
   .page-header,
   .section-header {
