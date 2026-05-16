@@ -1,7 +1,7 @@
 <div class="categories-page">
   <header class="page-header">
     <div>
-      <h1>Categories</h1>
+      <h1>Категории</h1>
       <div class="breadcrumbs">Admin › Categories</div>
     </div>
   </header>
@@ -14,11 +14,11 @@
 
   <section class="quiz-card categories-panel">
     @if (isLoading) {
-      <p>Loading categories...</p>
+      <p>Загрузка категорий...</p>
     }
 
     @if (!isLoading && categories.length === 0) {
-      <p>No categories yet.</p>
+      <p>Нет категорий  .</p>
     }
 
     <div class="categories-list">
@@ -56,24 +56,22 @@
 
           @if (editingCategoryId === category.id) {
             <section class="edit-category-panel">
-              <h2>Edit category</h2>
+              <h2>Редактировать категорию</h2>
 
               <div class="form-row">
                 <div class="form-field">
-                  <label class="form-label">Category name</label>
+                  <label class="form-label">Название категории</label>
                   <input
                     class="input"
                     [(ngModel)]="editName"
-                    placeholder="Category name"
                   />
                 </div>
 
                 <div class="form-field">
-                  <label class="form-label">Description</label>
+                  <label class="form-label">Описание</label>
                   <input
                     class="input"
                     [(ngModel)]="editDescription"
-                    placeholder="Category description"
                   />
                 </div>
 
@@ -91,7 +89,7 @@
                   class="btn btn-secondary save-button"
                   (click)="cancelEditCategory()"
                 >
-                  Cancel
+                  Отмена
                 </button>
               </div>
             </section>
@@ -106,29 +104,27 @@
     class="btn btn-primary create-button"
     (click)="toggleCreateForm()"
   >
-    + Create new category
+    + Создать категорию
   </button>
 
   @if (showCreateForm) {
     <section class="quiz-card create-category-panel">
-      <h2>Create new category</h2>
+      <h2>Создать новую категорию</h2>
 
       <div class="form-row">
         <div class="form-field">
-          <label class="form-label">Category name</label>
+          <label class="form-label">Название категории</label>
           <input
             class="input"
             [(ngModel)]="name"
-            placeholder="Example: History"
           />
         </div>
 
         <div class="form-field">
-          <label class="form-label">Description</label>
+          <label class="form-label">Описание</label>
           <input
             class="input"
             [(ngModel)]="description"
-            placeholder="Example: Events and historical facts"
           />
         </div>
 

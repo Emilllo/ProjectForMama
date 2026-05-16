@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, firstValueFrom } from 'rxjs';
 
@@ -15,7 +15,8 @@ import { GameBoard } from '../../game/game-board/game-board';
   selector: 'app-game-view',
   imports: [GameBoard],
   templateUrl: './game-view.html',
-  styleUrl: './game-view.css'
+  styleUrl: './game-view.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GameView implements OnInit {
   private routeSubscription: Subscription | null = null;
@@ -78,12 +79,12 @@ export class GameView implements OnInit {
         this.gameDetails = details;
         this.currentRoundIndex = this.gameDetails.sort((a, b) => a.roundid - b.roundid)[0]?.roundid;
         this.loadRound(gameId, this.currentRoundIndex);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: error => {
         console.error(error);
         this.errorMessage = 'Failed to load games';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -120,19 +121,19 @@ export class GameView implements OnInit {
 
             this.clearSelectedQuestion();
             this.isLoading = false;
-            this.cdr.detectChanges();
+            this.cdr.markForCheck();
           },
           error: error => {
             console.error(error);
             this.errorMessage = 'Failed to load round categories';
-            this.cdr.detectChanges();
+            this.cdr.markForCheck();
           }
         });
       },
       error: error => {
         console.error(error);
         this.errorMessage = 'Failed to load questions';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -154,10 +155,12 @@ export class GameView implements OnInit {
     this.selectedCategoryName = event.categoryName;
     this.selectedCategoryDescription = event.categoryDescription || '';
     this.adminMessage = '';
+    this.cdr.markForCheck();
   }
 
   backToBoard(): void {
     this.clearSelectedQuestion();
+    this.cdr.markForCheck();
   }
 
   private clearSelectedQuestion(): void {

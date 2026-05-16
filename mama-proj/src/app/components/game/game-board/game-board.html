@@ -1,5 +1,5 @@
-@if (!selectedQuestion) {
-  <div class="board-screen">
+@if (!selectedQuestion || isBoardFading) {
+  <div class="board-screen" [class.board-screen-fading]="isBoardFading">
     @if (!round) {
       <p>No round selected.</p>
     }
@@ -18,12 +18,6 @@
           >
             <div class="category-cell">
               <div class="category-name">{{ category.name }}</div>
-
-              @if (category.description) {
-                <div class="category-description">
-                  {{ category.description }}
-                </div>
-              }
             </div>
 
             <div
@@ -53,41 +47,28 @@
   </div>
 }
 
-@if (selectedQuestion) {
+@if (selectedQuestion && !isBoardFading && isIntroScreen) {
+  <div class="selected-question-screen intro-screen">
+    <div class="intro-category">
+      {{ selectedCategoryName }}
+    </div>
+
+    <div class="badge badge-blue intro-points">
+      {{ selectedQuestion.points_per_question }} points
+    </div>
+  </div>
+}
+
+@if (selectedQuestion && !isBoardFading && !isIntroScreen) {
   <div class="selected-question-screen">
-    <div class="selected-question-top">
-      <span class="badge">
-        {{ selectedCategoryName }}
-      </span>
-
-      <span class="badge badge-blue">
-        {{ selectedQuestion.points_per_question }} points
-      </span>
-    </div>
-
-    <div class="timer-circle">
-      20
-      <span>sec</span>
-    </div>
-
     <h1 class="question-text">
       {{ selectedQuestion.question }}
     </h1>
 
     @if (selectedQuestion.image) {
       <div class="question-image-url">
-        Image: {{ selectedQuestion.image }}
+        <img src="/assets/img/{{ selectedQuestion.image }}"/>
       </div>
     }
-
-    <div class="question-actions">
-      <button
-        type="button"
-        class="btn btn-secondary"
-        (click)="backToBoard()"
-      >
-        Back to questions
-      </button>
-    </div>
   </div>
 }
