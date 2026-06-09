@@ -3,12 +3,20 @@
     <h1>Присоединиться</h1>
     <p>Введите код комнаты и ваше имя</p>
 
+    @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+    }
+
     <div class="form-field">
       <label class="form-label">Код комнаты</label>
       <input
         class="input"
-        
+        [(ngModel)]="roomCode"
         placeholder="Введите код комнаты"
+        maxlength="6"
+        autocomplete="off"
       />
     </div>
 
@@ -16,8 +24,10 @@
       <label class="form-label">Имя игрока</label>
       <input
         class="input"
-        
+        [(ngModel)]="playerName"
         placeholder="Введите ваше имя"
+        autocomplete="off"
+        (keyup.enter)="joinGame()"
       />
     </div>
 
@@ -25,14 +35,20 @@
       <button
         type="button"
         class="btn btn-primary"
-        
+        [disabled]="isLoading"
+        (click)="joinGame()"
       >
-        Войти
+        @if (isLoading) {
+          Подключение...
+        } @else {
+          Войти
+        }
       </button>
 
       <button
         type="button"
         class="btn btn-secondary"
+        [disabled]="isLoading"
         (click)="goToHome()"
       >
         Назад

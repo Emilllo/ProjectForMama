@@ -14,6 +14,7 @@ import { CategoriesApiService } from '../../../shared/services/categories-api.se
 import { GamesApiService } from '../../../shared/services/games-api.service';
 import { RoundsApiService } from '../../../shared/services/rounds-api.service';
 import { Router } from '@angular/router';
+import { SessionsApiService } from '../../../shared/services/sessions-api.service';
 
 @Component({
   selector: 'app-games',
@@ -42,6 +43,7 @@ export class Games implements OnInit {
     private categoriesApiService: CategoriesApiService,
     private gamesApiService: GamesApiService,
     private roundsApiService: RoundsApiService,
+    private sessionsApiService: SessionsApiService,
     private cdr: ChangeDetectorRef,
     private router: Router
   ) {}
@@ -329,7 +331,24 @@ export class Games implements OnInit {
     }
   }
 
-  startGame(id: number): void {
-    this.router.navigate(['/admin/game', id, 'play']);
+  startGame(gameId: number): void {
+    this.sessionsApiService.createSession(gameId).subscribe({
+      next: session => {
+        this.router.navigate(
+          ['/admin/game', gameId, 'play'],
+          {
+            queryParams: {
+              sessionId: session.id,
+              code: session.code
+            }
+          }
+        );
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Failed to create game session';
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

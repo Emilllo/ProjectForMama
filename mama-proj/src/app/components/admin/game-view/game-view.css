@@ -133,19 +133,74 @@
    PLAYERS PANEL
 ========================= */
 
-.players-panel {
-  margin-top: 24px;
+.players-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.players-panel h2 {
-  margin-bottom: 16px;
+.players-count {
+  color: var(--text-soft);
+  font-size: 14px;
+  font-weight: 700;
 }
 
-.users-placeholder {
-  padding: 18px;
-  border: 1px dashed rgba(80, 130, 255, 0.35);
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.player-card {
+  min-height: 86px;
+  padding: 14px;
   border-radius: var(--radius-md);
-  color: var(--text-muted);
+  border: 1px solid rgba(47, 134, 255, 0.55);
+  background: linear-gradient(
+    135deg,
+    rgba(47, 134, 255, 0.16),
+    rgba(10, 25, 55, 0.78)
+  );
+  box-shadow: 0 0 18px rgba(47, 134, 255, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.player-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(139, 92, 246, 0.8);
+  background: rgba(139, 92, 246, 0.2);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(139, 92, 246, 0.35);
+}
+
+.player-card-info {
+  min-width: 0;
+}
+
+.player-card-name {
+  color: var(--text-main);
+  font-size: 18px;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-card-score {
+  margin-top: 4px;
+  color: var(--blue-light);
+  font-size: 15px;
+  font-weight: 800;
 }
 
 /* =========================

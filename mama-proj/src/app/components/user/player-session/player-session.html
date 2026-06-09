@@ -1,0 +1,27 @@
+<div class="player-screen">
+  <div class="player-top-card">
+    <div class="player-info">
+      <div class="player-label">Игрок</div>
+      <div class="player-name">{{ playerName }}</div>
+    </div>
+
+    <div class="score-box">
+      <div class="score-value">{{ score }}</div>
+      <div class="score-label">очков</div>
+    </div>
+  </div>
+
+  <div class="answer-zone">
+    <button
+      type="button"
+      class="answer-button"
+      (click)="answer()"
+    >
+      ОТВЕТИТЬ
+    </button>
+  </div>
+
+  <div class="player-status">
+    {{ statusText }}
+  </div>
+</div>

@@ -1,15 +1,16 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, firstValueFrom } from 'rxjs';
 
 import { GameDetails } from '../../../shared/models/game.models';
 import { Question } from '../../../shared/models/question.models';
-import { GamePlayRound } from '../../../shared/models/game-play.models';
+import { GamePlayRound, SessionPlayerInfo } from '../../../shared/models/game-play.models';
 
 import { GamesApiService } from '../../../shared/services/games-api.service';
 import { QuestionsApiService } from '../../../shared/services/questions-api.service';
 
 import { GameBoard } from '../../game/game-board/game-board';
+import { SessionsApiService } from '../../../shared/services/sessions-api.service';
 
 @Component({
   selector: 'app-game-view',
@@ -18,10 +19,14 @@ import { GameBoard } from '../../game/game-board/game-board';
   styleUrl: './game-view.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GameView implements OnInit {
+export class GameView implements OnInit, OnDestroy  {
   private routeSubscription: Subscription | null = null;
 
+  connectedPlayers: SessionPlayerInfo[] = [];
+  private playersRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
   gameId: number = 0;
+  sessionId: number | null = null;
   roomCode = '----';
 
   gameDetails: GameDetails[] = [];
@@ -43,6 +48,7 @@ export class GameView implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private gamesApiService: GamesApiService,
+    private sessionsApiService: SessionsApiService,
     private cdr: ChangeDetectorRef,
     private questionsApiService: QuestionsApiService
   ) {}
@@ -68,6 +74,21 @@ export class GameView implements OnInit {
       this.currentRound = null;
       this.clearSelectedQuestion();
       this.loadGame();
+    });
+
+    this.route.queryParamMap.subscribe(queryParams => {
+      const sessionIdFromRoute = queryParams.get('sessionId');
+      const codeFromRoute = queryParams.get('code');
+
+      if (sessionIdFromRoute) {
+        this.sessionId = Number(sessionIdFromRoute);
+        this.loadConnectedPlayers();
+        this.startPlayersPolling();
+      }
+
+      if (codeFromRoute) {
+        this.roomCode = codeFromRoute;
+      }
     });
   }
 
@@ -190,5 +211,61 @@ export class GameView implements OnInit {
 
     this.adminMessage = `Wrong answer. -${this.selectedQuestion.points_per_question} points.`;
     console.log('Wrong:', this.selectedQuestion);
+  }
+
+  finishGame(): void {
+    if (!this.sessionId) {
+      this.errorMessage = 'Session id is missing';
+      return;
+    }
+
+    this.sessionsApiService.finishSession(this.sessionId).subscribe({
+      next: () => {
+        this.router.navigate(['/admin/dashboard/games']);
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Failed to finish game session';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadConnectedPlayers(): void {
+    if (!this.sessionId) {
+      return;
+    }
+
+    this.sessionsApiService.getSessionPlayers(this.sessionId).subscribe({
+      next: players => {
+        this.connectedPlayers = players;
+        this.cdr.markForCheck();
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Failed to load connected players';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private startPlayersPolling(): void {
+    if (this.playersRefreshTimer) {
+      return;
+    }
+
+    this.playersRefreshTimer = setInterval(() => {
+      this.loadConnectedPlayers();
+    }, 2000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe();
+    }
+
+    if (this.playersRefreshTimer) {
+      clearInterval(this.playersRefreshTimer);
+    }
   }
 }

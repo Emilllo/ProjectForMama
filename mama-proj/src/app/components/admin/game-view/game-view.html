@@ -116,6 +116,14 @@
           >
             Back to games
           </button>
+
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="finishGame()"
+          >
+            End game
+          </button>
         </div>
 
         @if (adminMessage) {
@@ -127,11 +135,41 @@
     </main>
 
     <section class="players-panel quiz-card">
-      <h2>Active users</h2>
+      <div class="players-panel-header">
+        <h2>Active users</h2>
 
-      <div class="users-placeholder">
-        Users will be connected later.
+        <span class="players-count">
+          {{ connectedPlayers.length }} connected
+        </span>
       </div>
+
+      @if (connectedPlayers.length === 0) {
+        <div class="users-placeholder">
+          No players connected yet.
+        </div>
+      }
+
+      @if (connectedPlayers.length > 0) {
+        <div class="players-grid">
+          @for (player of connectedPlayers; track player.player_id) {
+            <div class="player-card">
+              <div class="player-avatar">
+                {{ player.player_name.charAt(0).toUpperCase() }}
+              </div>
+
+              <div class="player-card-info">
+                <div class="player-card-name">
+                  {{ player.player_name }}
+                </div>
+
+                <div class="player-card-score">
+                  {{ player.score }} points
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
     </section>
   }
 </div>
