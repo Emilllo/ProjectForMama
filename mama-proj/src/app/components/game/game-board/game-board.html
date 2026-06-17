@@ -31,13 +31,19 @@
               }
 
               @for (question of category.questions; track question.id) {
-                <button
-                  type="button"
-                  class="points-cell"
-                  (click)="selectQuestion(question, category.name, category.description)"
-                >
-                  {{ question.points_per_question }}
-                </button>
+                @if (isQuestionUsed(question.id)) {
+                  <div class="used-question-cell"></div>
+                } @else {
+                  <button
+                    type="button"
+                    class="points-cell"
+                    [disabled]="readonlyMode"
+                    [class.points-cell-readonly]="readonlyMode"
+                    (click)="selectQuestion(question, category.name, category.description)"
+                  >
+                    {{ question.points_per_question }}
+                  </button>
+                }
               }
             </div>
           </div>
@@ -59,7 +65,15 @@
   </div>
 }
 
-@if (selectedQuestion && !isBoardFading && !isIntroScreen) {
+@if (isAnswerRevealScreen && answerRevealQuestion) {
+  <div class="selected-question-screen answer-reveal-screen">
+    <div class="answer-reveal-answer">
+      {{ answerRevealQuestion.answer || 'No answer' }}
+    </div>
+  </div>
+}
+
+@if (selectedQuestion && !isBoardFading && !isIntroScreen && !isAnswerRevealScreen) {
   <div class="selected-question-screen">
     <h1 class="question-text">
       {{ selectedQuestion.question }}

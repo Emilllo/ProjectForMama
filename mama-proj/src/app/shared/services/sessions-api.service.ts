@@ -1,90 +1,93 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GameSession, LeaderboardEntry, Player, SessionPlayer, SessionPlayerInfo } from '../models/game-play.models';
+import { GameSession, LeaderboardEntry, Player, PlayerSessionState, SessionPlayer, SessionPlayerInfo } from '../models/game-play.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionsApiService {
-  private readonly apiUrl = '/sessions';
-
   constructor(private http: HttpClient) {}
+
+  createPlayer(name: string) {
+    return this.http.post<Player>('/create-player', {
+      name,
+      scores: 0
+    });
+  }
+
   createSession(gameId: number) {
-    return this.http.post<GameSession>(
-        `${this.apiUrl}`,
-        {
-        game_id: gameId
-        }
-    );
-    }
+    return this.http.post<GameSession>('/sessions', {
+      game_id: gameId
+    });
+  }
 
-    getSession(sessionId: number) {
-    return this.http.get<GameSession>(
-        `${this.apiUrl}/${sessionId}`
-    );
-    }
+  getSession(sessionId: number) {
+    return this.http.get<GameSession>(`/sessions/${sessionId}`);
+  }
 
-    startSession(sessionId: number) {
-    return this.http.post<void>(
-        `${this.apiUrl}/${sessionId}/start`,
-        {}
-    );
-    }
+  joinSession(code: string, token: string) {
+    return this.http.post<SessionPlayer>('/sessions/join', {
+      code,
+      token
+    });
+  }
 
-    finishSession(sessionId: number) {
-    return this.http.post<void>(
-        `${this.apiUrl}/${sessionId}/finish`,
-        {}
-    );
-    }
-
-    getSessionPlayers(sessionId: number) {
+  getSessionPlayers(sessionId: number) {
     return this.http.get<SessionPlayerInfo[]>(
-        `${this.apiUrl}/${sessionId}/players`
+      `/sessions/${sessionId}/players`
     );
-    }
+  }
 
-    getLeaderboard(sessionId: number) {
-    return this.http.get<LeaderboardEntry[]>(
-        `${this.apiUrl}/${sessionId}/leaderboard`
-    );
-    }
-
-    setActiveQuestion(sessionId: number, questionId: number) {
+  startSession(sessionId: number) {
     return this.http.post<void>(
-        `${this.apiUrl}/${sessionId}/question`,
-        {
+      `/sessions/${sessionId}/start`,
+      {}
+    );
+  }
+
+  finishSession(sessionId: number) {
+    return this.http.post<void>(
+      `/sessions/${sessionId}/finish`,
+      {}
+    );
+  }
+
+  setActiveQuestion(sessionId: number, questionId: number) {
+    return this.http.post<void>(
+      `/sessions/${sessionId}/question`,
+      {
         question_id: questionId
-        }
+      }
     );
-    }
+  }
 
-    judgeAnswer(sessionId: number, correct: boolean) {
+  buzzIn(sessionId: number, token: string) {
     return this.http.post<void>(
-        `${this.apiUrl}/${sessionId}/judge`,
-        {
-        correct: correct
-        }
+      `/sessions/${sessionId}/buzz`,
+      {
+        token
+      }
     );
-    }
+  }
 
-    createPlayer(name: string) {
-    return this.http.post<Player>(
-        '/create-player',
-        {
-        name: name,
-        scores: 0
-        }
+  judgeAnswer(sessionId: number, correct: boolean) {
+    return this.http.post<void>(
+      `/sessions/${sessionId}/judge`,
+      {
+        correct
+      }
     );
-    }
+  }
 
-    joinSession(code: string, token: string) {
-    return this.http.post<SessionPlayer>(
-        '/sessions/join',
-        {
-        code: code,
-        token: token
-        }
+  getPlayerSessionState(sessionId: number, token: string) {
+    return this.http.get<PlayerSessionState>(
+      `/sessions/${sessionId}/player-state?token=${token}`
     );
-    }
+  }
+
+  getSessionByCode(code: string) {
+    return this.http.get<GameSession>(
+      `/session-by-code/${code}`
+    );
+  }
 }

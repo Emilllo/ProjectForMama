@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, SimpleChanges, OnChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  SimpleChanges,
+  OnChanges
+} from '@angular/core';
+
 import { Question } from '../../../shared/models/question.models';
 import { GamePlayRound } from '../../../shared/models/game-play.models';
 
@@ -11,7 +21,15 @@ import { GamePlayRound } from '../../../shared/models/game-play.models';
 export class GameBoard implements OnChanges {
   @Input() round: GamePlayRound | null = null;
   @Input() selectedQuestion: Question | null = null;
-  @Input() selectedCategoryName = ''; 
+  @Input() selectedCategoryName = '';
+
+  @Input() usedQuestionIds: number[] = [];
+
+  @Input() isAnswerRevealScreen = false;
+  @Input() answerRevealQuestion: Question | null = null;
+  @Input() answerRevealCategoryName = '';
+
+  @Input() readonlyMode = false;
 
   @Output() questionSelected = new EventEmitter<{
     question: Question;
@@ -21,21 +39,75 @@ export class GameBoard implements OnChanges {
 
   @Output() backToBoardClicked = new EventEmitter<void>();
 
+  isBoardFading = false;
+  isIntroScreen = false;
+
+  private readonlyIntroQuestionId: number | null = null;
+  private readonlyIntroTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     private cdr: ChangeDetectorRef
   ) {}
 
-  isBoardFading = false;
-  isIntroScreen = false;
-
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedQuestion'] && !changes['selectedQuestion'].firstChange) {
-      // Когда selectedQuestion меняется с родителя, сбрасываем флаги
+    if (changes['selectedQuestion']) {
       if (!this.selectedQuestion) {
         this.isBoardFading = false;
         this.isIntroScreen = false;
+        this.readonlyIntroQuestionId = null;
+
+        if (this.readonlyIntroTimer) {
+          clearTimeout(this.readonlyIntroTimer);
+          this.readonlyIntroTimer = null;
+        }
+
+        this.cdr.markForCheck();
+        return;
       }
+
+      if (this.readonlyMode && !this.isAnswerRevealScreen) {
+        const selectedQuestionId = this.selectedQuestion.id;
+
+        const isNewReadonlyQuestion =
+          this.readonlyIntroQuestionId !== selectedQuestionId;
+
+        if (isNewReadonlyQuestion) {
+          this.readonlyIntroQuestionId = selectedQuestionId;
+
+          this.isBoardFading = false;
+          this.isIntroScreen = true;
+
+          if (this.readonlyIntroTimer) {
+            clearTimeout(this.readonlyIntroTimer);
+          }
+
+          this.readonlyIntroTimer = setTimeout(() => {
+            this.isIntroScreen = false;
+            this.readonlyIntroTimer = null;
+            this.cdr.markForCheck();
+          }, 2000);
+        }
+      }
+
+      this.cdr.markForCheck();
     }
+
+    if (
+      changes['isAnswerRevealScreen'] ||
+      changes['answerRevealQuestion'] ||
+      changes['usedQuestionIds']
+    ) {
+      if (this.isAnswerRevealScreen) {
+        this.isIntroScreen = false;
+        this.isBoardFading = false;
+      }
+
+      this.cdr.markForCheck();
+    }
+  }
+
+  isQuestionUsed(questionId: number): boolean {
+    return this.usedQuestionIds.includes(questionId);
   }
 
   selectQuestion(
@@ -43,6 +115,10 @@ export class GameBoard implements OnChanges {
     categoryName: string,
     categoryDescription?: string | null
   ): void {
+    if (this.readonlyMode) {
+      return;
+    }
+
     if (this.isBoardFading || this.isIntroScreen) {
       return;
     }

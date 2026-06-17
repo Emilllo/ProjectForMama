@@ -11,10 +11,18 @@
     </div>
   </div>
 
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
   <div class="answer-zone">
     <button
       type="button"
       class="answer-button"
+      [class.answer-button-disabled]="!canBuzz"
+      [disabled]="!canBuzz"
       (click)="answer()"
     >
       ОТВЕТИТЬ

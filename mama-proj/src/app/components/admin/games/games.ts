@@ -332,8 +332,13 @@ export class Games implements OnInit {
   }
 
   startGame(gameId: number): void {
+    this.errorMessage = '';
+
     this.sessionsApiService.createSession(gameId).subscribe({
       next: session => {
+        localStorage.setItem(`game_${gameId}_session_id`, String(session.id));
+        localStorage.setItem(`game_${gameId}_room_code`, session.code);
+
         this.router.navigate(
           ['/admin/game', gameId, 'play'],
           {
@@ -346,7 +351,26 @@ export class Games implements OnInit {
       },
       error: error => {
         console.error(error);
-        this.errorMessage = 'Failed to create game session';
+        this.errorMessage = 'Failed to start game';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  joinAsPresenter(): void {
+    const code = prompt('Enter room code');
+
+    if (!code) {
+      return;
+    }
+
+    this.sessionsApiService.getSessionByCode(code.trim()).subscribe({
+      next: session => {
+        window.open(`/presenter/session/${session.id}`, '_blank');
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Session not found';
         this.cdr.detectChanges();
       }
     });

@@ -1,1 +1,108 @@
-<p>presenter-view works!</p>
+<div class="presenter-page">
+  <header class="presenter-header">
+    <div class="quiz-logo">
+      <div class="quiz-logo-icon">?</div>
+
+      <div>
+        <div class="game-logo-title">QUIZ GAME</div>
+        <span class="badge">Presenter view</span>
+      </div>
+    </div>
+
+    <div class="presenter-center">
+      <div class="presenter-room-label">Room code</div>
+      <div class="presenter-room-code">{{ roomCode }}</div>
+    </div>
+
+    <div class="presenter-status">
+      @if (showBuzzingInfo) {
+        <div class="presenter-buzzing">
+          Отвечает: {{ buzzingPlayerName }}
+        </div>
+      } @else {
+        <div class="presenter-status-idle">
+          {{ currentSession?.status || 'loading' }}
+        </div>
+      }
+    </div>
+  </header>
+
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (isLoading) {
+    <section class="quiz-card presenter-loading">
+      Loading presenter view...
+    </section>
+  }
+
+  @if (!isLoading && showLobby) {
+    <main class="presenter-lobby quiz-card quiz-card-glow">
+      <div class="lobby-title">Комната ожидания</div>
+      <div class="lobby-code">{{ roomCode }}</div>
+      <div class="lobby-subtitle">Ожидание игроков...</div>
+    </main>
+  }
+
+  @if (!isLoading && !showLobby) {
+    <main class="presenter-main quiz-card quiz-card-glow">
+      <app-game-board
+        [round]="currentRound"
+        [selectedQuestion]="selectedQuestion"
+        [selectedCategoryName]="selectedCategoryName"
+        [usedQuestionIds]="usedQuestionIds"
+        [isAnswerRevealScreen]="isAnswerRevealScreen"
+        [answerRevealQuestion]="answerRevealQuestion"
+        [answerRevealCategoryName]="answerRevealCategoryName"
+        [readonlyMode]="true"
+      ></app-game-board>
+    </main>
+  }
+
+  @if (!isLoading) {
+    <section class="presenter-players-panel quiz-card">
+      <div class="players-panel-header">
+        <h2>Игроки</h2>
+
+        <span class="players-count">
+          {{ connectedPlayers.length }} connected
+        </span>
+      </div>
+
+      @if (connectedPlayers.length === 0) {
+        <div class="users-placeholder">
+          No players connected yet.
+        </div>
+      }
+
+      @if (connectedPlayers.length > 0) {
+        <div class="presenter-players-row">
+          @for (player of connectedPlayers; track player.player_id) {
+            <div
+              class="presenter-player-card"
+              [class.presenter-player-card-active]="currentSession?.buzzing_player_id === player.player_id"
+              [class.presenter-player-card-wrong]="isWrongPlayer(player.player_id)"
+            >
+              <div class="presenter-player-avatar">
+                {{ player.player_name.charAt(0).toUpperCase() }}
+              </div>
+
+              <div class="presenter-player-info">
+                <div class="presenter-player-name">
+                  {{ player.player_name }}
+                </div>
+
+                <div class="presenter-player-score">
+                  {{ player.score }} пунктов
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

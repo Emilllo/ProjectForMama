@@ -10,6 +10,7 @@ import { QuestionCreate } from './components/admin/questions/question-create/que
 import { QuestionEdit } from './components/admin/questions/question-edit/question-edit';
 import { Games } from './components/admin/games/games';
 import { PlayerSession } from './components/user/player-session/player-session';
+import { PresenterView } from './components/admin/presenter-view/presenter-view';
 
 export const routes: Routes = [
   {
@@ -63,5 +64,9 @@ export const routes: Routes = [
   {
     path: 'player/session/:id',
     component: PlayerSession
+  },
+  {
+    path: 'presenter/session/:id',
+    component: PresenterView
   }
 ];

@@ -62,6 +62,10 @@
           [round]="currentRound"
           [selectedQuestion]="selectedQuestion"
           [selectedCategoryName]="selectedCategoryName"
+          [usedQuestionIds]="usedQuestionIds"
+          [isAnswerRevealScreen]="isAnswerRevealScreen"
+          [answerRevealQuestion]="answerRevealQuestion"
+          [answerRevealCategoryName]="answerRevealCategoryName"
           (questionSelected)="onQuestionSelected($event)"
           (backToBoardClicked)="backToBoard()"
         ></app-game-board>
@@ -81,14 +85,26 @@
           <p>No question selected.</p>
         }
 
+        @if (currentSession?.question_status === 'open') {
+          <div class="admin-message">
+            Waiting for player answer...
+          </div>
+        }
+
+        @if (currentSession?.question_status === 'buzzing') {
+          <div class="admin-message admin-message-hot">
+            Answering player: {{ buzzingPlayerName }}
+          </div>
+        }
+
         <div class="admin-actions">
           <button
             type="button"
-            class="btn btn-secondary"
-            [disabled]="!selectedQuestion"
-            (click)="backToBoard()"
+            class="btn btn-primary"
+            [disabled]="currentSession?.status === 'active'"
+            (click)="startSession()"
           >
-            Back to board
+            Начать игру
           </button>
 
           <button
@@ -97,7 +113,7 @@
             [disabled]="!selectedQuestion"
             (click)="markCorrect()"
           >
-            + Correct
+            + Правильный
           </button>
 
           <button
@@ -106,7 +122,7 @@
             [disabled]="!selectedQuestion"
             (click)="markWrong()"
           >
-            - Wrong
+            - Неправильный
           </button>
 
           <button
@@ -114,7 +130,7 @@
             class="btn btn-secondary"
             (click)="goBackToGames()"
           >
-            Back to games
+            Обратно к списку игр
           </button>
 
           <button
@@ -122,7 +138,7 @@
             class="btn btn-danger"
             (click)="finishGame()"
           >
-            End game
+            Завершить игру
           </button>
         </div>
 
@@ -152,7 +168,11 @@
       @if (connectedPlayers.length > 0) {
         <div class="players-grid">
           @for (player of connectedPlayers; track player.player_id) {
-            <div class="player-card">
+            <div
+              class="player-card"
+              [class.player-card-active]="currentSession?.buzzing_player_id === player.player_id"
+              [class.player-card-wrong]="isWrongPlayer(player.player_id)"
+            >
               <div class="player-avatar">
                 {{ player.player_name.charAt(0).toUpperCase() }}
               </div>

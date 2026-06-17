@@ -52,3 +52,10 @@ export interface SessionPlayer {
   score: number;
   joined_at: string;
 }
+
+export interface PlayerSessionState {
+  player_id: number;
+  score: number;
+  is_blocked_for_question: boolean;
+  can_buzz: boolean;
+}

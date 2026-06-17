@@ -4,7 +4,7 @@ import { Subscription, firstValueFrom } from 'rxjs';
 
 import { GameDetails } from '../../../shared/models/game.models';
 import { Question } from '../../../shared/models/question.models';
-import { GamePlayRound, SessionPlayerInfo } from '../../../shared/models/game-play.models';
+import { GamePlayRound, GameSession, SessionPlayerInfo } from '../../../shared/models/game-play.models';
 
 import { GamesApiService } from '../../../shared/services/games-api.service';
 import { QuestionsApiService } from '../../../shared/services/questions-api.service';
@@ -25,6 +25,9 @@ export class GameView implements OnInit, OnDestroy  {
   connectedPlayers: SessionPlayerInfo[] = [];
   private playersRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
+  currentSession: GameSession | null = null;
+  private sessionRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
   gameId: number = 0;
   sessionId: number | null = null;
   roomCode = '----';
@@ -43,6 +46,14 @@ export class GameView implements OnInit, OnDestroy  {
   isLoading = true;
   errorMessage = '';
   adminMessage = '';
+
+  usedQuestionIds: number[] = [];
+
+  isAnswerRevealScreen = false;
+  answerRevealQuestion: Question | null = null;
+  answerRevealCategoryName = '';
+
+  wrongPlayerIds: number[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -74,6 +85,8 @@ export class GameView implements OnInit, OnDestroy  {
       this.currentRound = null;
       this.clearSelectedQuestion();
       this.loadGame();
+      this.loadSessionState();
+      this.startSessionPolling();
     });
 
     this.route.queryParamMap.subscribe(queryParams => {
@@ -90,6 +103,42 @@ export class GameView implements OnInit, OnDestroy  {
         this.roomCode = codeFromRoute;
       }
     });
+  }
+
+  isWrongPlayer(playerId: number): boolean {
+    const questionIsPlaying =
+      this.currentSession?.status === 'active' &&
+      (
+        this.currentSession?.question_status === 'open' ||
+        this.currentSession?.question_status === 'buzzing'
+      );
+
+    return questionIsPlaying && this.wrongPlayerIds.includes(playerId);
+  }
+
+  private revealAnswerAndReturnToBoard(question: Question, categoryName: string): void {
+    if (!this.usedQuestionIds.includes(question.id)) {
+      this.usedQuestionIds = [...this.usedQuestionIds, question.id];
+    }
+
+    this.answerRevealQuestion = question;
+    this.answerRevealCategoryName = categoryName;
+    this.isAnswerRevealScreen = true;
+
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.isAnswerRevealScreen = false;
+      this.answerRevealQuestion = null;
+      this.answerRevealCategoryName = '';
+
+      this.wrongPlayerIds = [];
+
+      this.clearSelectedQuestion();
+      this.loadSessionState();
+
+      this.cdr.detectChanges();
+    }, 5000);
   }
 
   loadGame(): void {
@@ -159,6 +208,25 @@ export class GameView implements OnInit, OnDestroy  {
     });
   }
 
+  startSession(): void {
+    if (!this.sessionId) {
+      this.errorMessage = 'Session id is missing';
+      return;
+    }
+
+    this.sessionsApiService.startSession(this.sessionId).subscribe({
+      next: () => {
+        this.adminMessage = 'Game started';
+        this.loadSessionState();
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Failed to start session';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   canGoToPreviousRound(): boolean {
     return this.currentRoundIndex > 0;
   }
@@ -172,14 +240,41 @@ export class GameView implements OnInit, OnDestroy  {
     categoryName: string;
     categoryDescription?: string | null;
   }): void {
+    if (!this.sessionId) {
+      this.errorMessage = 'Session id is missing';
+      return;
+    }
+
+    if (this.currentSession?.status !== 'active') {
+      this.errorMessage = 'Start the game first';
+      return;
+    }
+
+    this.wrongPlayerIds = [];
+
     this.selectedQuestion = event.question;
     this.selectedCategoryName = event.categoryName;
     this.selectedCategoryDescription = event.categoryDescription || '';
     this.adminMessage = '';
-    this.cdr.markForCheck();
+
+    this.sessionsApiService.setActiveQuestion(
+      this.sessionId,
+      event.question.id
+    ).subscribe({
+      next: () => {
+        this.adminMessage = 'Question is open for answers';
+        this.loadSessionState();
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Failed to open question';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   backToBoard(): void {
+    this.wrongPlayerIds = [];
     this.clearSelectedQuestion();
     this.cdr.markForCheck();
   }
@@ -196,21 +291,72 @@ export class GameView implements OnInit, OnDestroy  {
   }
 
   markCorrect(): void {
-    if (!this.selectedQuestion) {
+    if (!this.sessionId || !this.selectedQuestion) {
       return;
     }
 
-    this.adminMessage = `Correct answer. +${this.selectedQuestion.points_per_question} points.`;
-    console.log('Correct:', this.selectedQuestion);
+    const question = this.selectedQuestion;
+    const categoryName = this.selectedCategoryName;
+
+    this.sessionsApiService.judgeAnswer(this.sessionId, true).subscribe({
+      next: () => {
+        this.adminMessage = `Correct answer. +${question.points_per_question} points.`;
+        this.revealAnswerAndReturnToBoard(question, categoryName);
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Failed to mark answer as correct';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   markWrong(): void {
-    if (!this.selectedQuestion) {
+    if (!this.sessionId || !this.selectedQuestion) {
       return;
     }
 
-    this.adminMessage = `Wrong answer. -${this.selectedQuestion.points_per_question} points.`;
-    console.log('Wrong:', this.selectedQuestion);
+    const question = this.selectedQuestion;
+    const categoryName = this.selectedCategoryName;
+    const wrongPlayerId = this.currentSession?.buzzing_player_id;
+
+    this.sessionsApiService.judgeAnswer(this.sessionId, false).subscribe({
+      next: () => {
+        if (wrongPlayerId && !this.wrongPlayerIds.includes(wrongPlayerId)) {
+          this.wrongPlayerIds = [...this.wrongPlayerIds, wrongPlayerId];
+        }
+
+        this.sessionsApiService.getSession(this.sessionId!).subscribe({
+          next: session => {
+            this.currentSession = session;
+
+            const questionIsClosed =
+              session.question_status === 'idle' &&
+              !session.current_question_id;
+
+            if (questionIsClosed) {
+              this.adminMessage = 'All players answered wrong. Showing correct answer.';
+              this.revealAnswerAndReturnToBoard(question, categoryName);
+            } else {
+              this.adminMessage = 'Wrong answer. Question is open again.';
+              this.loadSessionState();
+            }
+
+            this.cdr.detectChanges();
+          },
+          error: error => {
+            console.error(error);
+            this.errorMessage = 'Failed to reload session after wrong answer';
+            this.cdr.detectChanges();
+          }
+        });
+      },
+      error: error => {
+        console.error(error);
+        this.errorMessage = 'Failed to mark answer as wrong';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   finishGame(): void {
@@ -221,6 +367,24 @@ export class GameView implements OnInit, OnDestroy  {
 
     this.sessionsApiService.finishSession(this.sessionId).subscribe({
       next: () => {
+        this.currentSession = {
+          ...(this.currentSession as GameSession),
+          status: 'finished',
+          question_status: 'idle',
+          current_question_id: null,
+          buzzing_player_id: null
+        };
+
+        if (this.playersRefreshTimer) {
+          clearInterval(this.playersRefreshTimer);
+          this.playersRefreshTimer = null;
+        }
+
+        if (this.sessionRefreshTimer) {
+          clearInterval(this.sessionRefreshTimer);
+          this.sessionRefreshTimer = null;
+        }
+
         this.router.navigate(['/admin/dashboard/games']);
       },
       error: error => {
@@ -266,6 +430,61 @@ export class GameView implements OnInit, OnDestroy  {
 
     if (this.playersRefreshTimer) {
       clearInterval(this.playersRefreshTimer);
+      this.playersRefreshTimer = null;
     }
+
+    if (this.sessionRefreshTimer) {
+      clearInterval(this.sessionRefreshTimer);
+      this.sessionRefreshTimer = null;
+    }
+  }
+
+  loadSessionState(): void {
+    if (!this.sessionId) {
+      return;
+    }
+
+    this.sessionsApiService.getSession(this.sessionId).subscribe({
+      next: session => {
+        this.currentSession = session;
+
+        this.sessionsApiService.getSessionPlayers(this.sessionId!).subscribe({
+          next: players => {
+            this.connectedPlayers = players;
+            this.cdr.detectChanges();
+          },
+          error: error => {
+            console.error(error);
+            this.cdr.detectChanges();
+          }
+        });
+      },
+      error: error => {
+        console.error(error);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private startSessionPolling(): void {
+    if (this.sessionRefreshTimer) {
+      return;
+    }
+
+    this.sessionRefreshTimer = setInterval(() => {
+      this.loadSessionState();
+    }, 1000);
+  }
+
+  get buzzingPlayerName(): string {
+    if (!this.currentSession?.buzzing_player_id) {
+      return '';
+    }
+
+    const player = this.connectedPlayers.find(
+      p => p.player_id === this.currentSession?.buzzing_player_id
+    );
+
+    return player?.player_name || `Player #${this.currentSession.buzzing_player_id}`;
   }
 }

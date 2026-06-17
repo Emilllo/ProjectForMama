@@ -63,5 +63,15 @@
     "target": "http://localhost:3000",
     "secure": false,
     "changeOrigin": true
+  },
+  "/session-by-code": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/session-by-code/**": {
+    "target": "http://localhost:3000",
+    "secure": false,
+    "changeOrigin": true
   }
 }
