@@ -12,6 +12,7 @@ import { QuestionsApiService } from '../../../shared/services/questions-api.serv
 import {
   SessionsApiService
 } from '../../../shared/services/sessions-api.service';
+import { SessionRealtimeService } from '../../../shared/services/session-realtime.service';
 
 @Component({
   selector: 'app-presenter-view',
@@ -47,15 +48,17 @@ export class PresenterView implements OnInit, OnDestroy {
 
   wrongPlayerIds: number[] = [];
 
-  private refreshTimer: ReturnType<typeof setInterval> | null = null;
-  private playersRefreshTimer: ReturnType<typeof setInterval> | null = null;
   private lastActiveQuestionId: number | null = null;
   private lastBuzzingPlayerId: number | null = null;
   private isRevealTimerRunning = false;
 
+  private realtimeSocket: WebSocket | null = null;
+
+
   constructor(
     private route: ActivatedRoute,
     private sessionsApiService: SessionsApiService,
+    private sessionRealtimeService: SessionRealtimeService,
     private gamesApiService: GamesApiService,
     private questionsApiService: QuestionsApiService,
     private cdr: ChangeDetectorRef
@@ -72,25 +75,25 @@ export class PresenterView implements OnInit, OnDestroy {
 
     this.loadInitialData();
 
-    this.refreshTimer = setInterval(() => {
-      this.loadSessionState();
-    }, 1000);
+    this.connectRealtime();
+  }
 
-    this.playersRefreshTimer = setInterval(() => {
-      this.loadPlayers();
-    }, 2000);
+  private connectRealtime(): void {
+    if (this.realtimeSocket) {
+      return;
+    }
+
+    this.realtimeSocket = this.sessionRealtimeService.connectToSession(
+      this.sessionId,
+      () => {
+        this.loadSessionState();
+      }
+    );
   }
 
   ngOnDestroy(): void {
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
-    }
-
-    if (this.playersRefreshTimer) {
-      clearInterval(this.playersRefreshTimer);
-      this.playersRefreshTimer = null;
-    }
+    this.sessionRealtimeService.close(this.realtimeSocket);
+    this.realtimeSocket = null;
   }
 
   isWrongPlayer(playerId: number): boolean {

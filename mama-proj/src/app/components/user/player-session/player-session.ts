@@ -1,7 +1,13 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+
 import { SessionsApiService } from '../../../shared/services/sessions-api.service';
-import { GameSession, PlayerSessionState, SessionPlayerInfo } from '../../../shared/models/game-play.models';
+import { SessionRealtimeService } from '../../../shared/services/session-realtime.service';
+
+import {
+  GameSession,
+  PlayerSessionState
+} from '../../../shared/models/game-play.models';
 
 @Component({
   selector: 'app-player-session',
@@ -19,16 +25,17 @@ export class PlayerSession implements OnInit, OnDestroy {
   statusText = 'Ждите игру';
 
   currentSession: GameSession | null = null;
+  playerState: PlayerSessionState | null = null;
+
   isBuzzing = false;
   errorMessage = '';
 
-  private refreshTimer: ReturnType<typeof setInterval> | null = null;
-
-  playerState: PlayerSessionState | null = null;
+  private realtimeSocket: WebSocket | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private sessionsApiService: SessionsApiService,
+    private sessionRealtimeService: SessionRealtimeService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -40,16 +47,12 @@ export class PlayerSession implements OnInit, OnDestroy {
     this.playerToken = localStorage.getItem('player_token') || '';
 
     this.loadPlayerScreen();
-
-    this.refreshTimer = setInterval(() => {
-      this.loadPlayerScreen();
-    }, 1000);
+    this.connectRealtime();
   }
 
   ngOnDestroy(): void {
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-    }
+    this.sessionRealtimeService.close(this.realtimeSocket);
+    this.realtimeSocket = null;
   }
 
   get canBuzz(): boolean {
@@ -78,6 +81,19 @@ export class PlayerSession implements OnInit, OnDestroy {
     });
   }
 
+  private connectRealtime(): void {
+    if (this.realtimeSocket) {
+      return;
+    }
+
+    this.realtimeSocket = this.sessionRealtimeService.connectToSession(
+      this.sessionId,
+      () => {
+        this.loadPlayerScreen();
+      }
+    );
+  }
+
   private loadPlayerScreen(): void {
     if (!this.sessionId || !this.playerToken) {
       return;
@@ -94,7 +110,10 @@ export class PlayerSession implements OnInit, OnDestroy {
           next: state => {
             this.playerState = state;
             this.score = state.score;
+
             this.updateStatusText();
+
+            this.errorMessage = '';
             this.cdr.detectChanges();
           },
           error: error => {
@@ -110,15 +129,6 @@ export class PlayerSession implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
-  }
-
-  private updateOwnScore(players: SessionPlayerInfo[]): void {
-    const me = players.find(player => player.player_id === this.playerId);
-
-    if (me) {
-      this.score = me.score;
-      localStorage.setItem('player_score', String(me.score));
-    }
   }
 
   private updateStatusText(): void {

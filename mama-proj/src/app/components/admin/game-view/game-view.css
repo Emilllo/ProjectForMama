@@ -147,13 +147,17 @@
 }
 
 .players-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
+  align-items: stretch;
 }
 
 .player-card {
   min-height: 86px;
+  width: max-content;
+  min-width: 170px;
+  max-width: 420px;
   padding: 14px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(47, 134, 255, 0.55);
@@ -185,6 +189,7 @@
 
 .player-card-info {
   min-width: 0;
+  width: max-content;
 }
 
 .player-card-name {
@@ -192,8 +197,6 @@
   font-size: 18px;
   font-weight: 900;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .player-card-score {

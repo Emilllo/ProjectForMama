@@ -11,6 +11,7 @@ import { QuestionsApiService } from '../../../shared/services/questions-api.serv
 
 import { GameBoard } from '../../game/game-board/game-board';
 import { SessionsApiService } from '../../../shared/services/sessions-api.service';
+import { SessionRealtimeService } from '../../../shared/services/session-realtime.service';
 
 @Component({
   selector: 'app-game-view',
@@ -23,10 +24,10 @@ export class GameView implements OnInit, OnDestroy  {
   private routeSubscription: Subscription | null = null;
 
   connectedPlayers: SessionPlayerInfo[] = [];
-  private playersRefreshTimer: ReturnType<typeof setInterval> | null = null;
 
   currentSession: GameSession | null = null;
-  private sessionRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
+  private realtimeSocket: WebSocket | null = null;
 
   gameId: number = 0;
   sessionId: number | null = null;
@@ -60,6 +61,7 @@ export class GameView implements OnInit, OnDestroy  {
     private router: Router,
     private gamesApiService: GamesApiService,
     private sessionsApiService: SessionsApiService,
+    private sessionRealtimeService: SessionRealtimeService,
     private cdr: ChangeDetectorRef,
     private questionsApiService: QuestionsApiService
   ) {}
@@ -85,8 +87,6 @@ export class GameView implements OnInit, OnDestroy  {
       this.currentRound = null;
       this.clearSelectedQuestion();
       this.loadGame();
-      this.loadSessionState();
-      this.startSessionPolling();
     });
 
     this.route.queryParamMap.subscribe(queryParams => {
@@ -95,14 +95,28 @@ export class GameView implements OnInit, OnDestroy  {
 
       if (sessionIdFromRoute) {
         this.sessionId = Number(sessionIdFromRoute);
-        this.loadConnectedPlayers();
-        this.startPlayersPolling();
+
+        this.loadSessionState();
+        this.connectRealtime();
       }
 
       if (codeFromRoute) {
         this.roomCode = codeFromRoute;
       }
     });
+  }
+
+  private connectRealtime(): void {
+    if (!this.sessionId || this.realtimeSocket) {
+      return;
+    }
+
+    this.realtimeSocket = this.sessionRealtimeService.connectToSession(
+      this.sessionId,
+      () => {
+        this.loadSessionState();
+      }
+    );
   }
 
   isWrongPlayer(playerId: number): boolean {
@@ -375,16 +389,6 @@ export class GameView implements OnInit, OnDestroy  {
           buzzing_player_id: null
         };
 
-        if (this.playersRefreshTimer) {
-          clearInterval(this.playersRefreshTimer);
-          this.playersRefreshTimer = null;
-        }
-
-        if (this.sessionRefreshTimer) {
-          clearInterval(this.sessionRefreshTimer);
-          this.sessionRefreshTimer = null;
-        }
-
         this.router.navigate(['/admin/dashboard/games']);
       },
       error: error => {
@@ -413,30 +417,13 @@ export class GameView implements OnInit, OnDestroy  {
     });
   }
 
-  private startPlayersPolling(): void {
-    if (this.playersRefreshTimer) {
-      return;
-    }
-
-    this.playersRefreshTimer = setInterval(() => {
-      this.loadConnectedPlayers();
-    }, 2000);
-  }
-
   ngOnDestroy(): void {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
     }
 
-    if (this.playersRefreshTimer) {
-      clearInterval(this.playersRefreshTimer);
-      this.playersRefreshTimer = null;
-    }
-
-    if (this.sessionRefreshTimer) {
-      clearInterval(this.sessionRefreshTimer);
-      this.sessionRefreshTimer = null;
-    }
+    this.sessionRealtimeService.close(this.realtimeSocket);
+    this.realtimeSocket = null;
   }
 
   loadSessionState(): void {
@@ -464,16 +451,6 @@ export class GameView implements OnInit, OnDestroy  {
         this.cdr.detectChanges();
       }
     });
-  }
-
-  private startSessionPolling(): void {
-    if (this.sessionRefreshTimer) {
-      return;
-    }
-
-    this.sessionRefreshTimer = setInterval(() => {
-      this.loadSessionState();
-    }, 1000);
   }
 
   get buzzingPlayerName(): string {
