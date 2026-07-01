@@ -32,6 +32,8 @@ export class PresenterView implements OnInit, OnDestroy {
   allQuestions: Question[] = [];
 
   currentRound: GamePlayRound | null = null;
+  roundIds: number[] = [];
+  currentRoundIndex = 0;
 
   selectedQuestion: Question | null = null;
   selectedCategoryName = '';
@@ -135,10 +137,12 @@ export class PresenterView implements OnInit, OnDestroy {
           next: details => {
             this.gameDetails = details;
 
-            const roundIds = [...new Set(details.map(detail => detail.roundid))]
+            this.roundIds = [...new Set(details.map(detail => detail.roundid))]
               .sort((a, b) => a - b);
 
-            const firstRoundId = roundIds[0];
+            this.currentRoundIndex = 0;
+
+            const firstRoundId = this.roundIds[this.currentRoundIndex];
 
             if (!firstRoundId) {
               this.errorMessage = 'No round found';
@@ -320,15 +324,65 @@ export class PresenterView implements OnInit, OnDestroy {
       this.answerRevealQuestion = null;
       this.answerRevealCategoryName = '';
 
-      this.selectedQuestion = null;
-      this.selectedCategoryName = '';
-      this.selectedCategoryDescription = '';
+      this.clearSelectedQuestion();
 
       this.isRevealTimerRunning = false;
-      this.lastActiveQuestionId = null;
+
+      this.moveToNextRoundIfNeeded();
 
       this.cdr.detectChanges();
     }, 5000);
+  }
+
+  private getCurrentRoundQuestionIds(): number[] {
+    if (!this.currentRound) {
+      return [];
+    }
+
+    return this.currentRound.categories
+      .flatMap(category => category.questions)
+      .map(question => question.id);
+  }
+
+  private isCurrentRoundFinished(): boolean {
+    const currentRoundQuestionIds = this.getCurrentRoundQuestionIds();
+
+    if (currentRoundQuestionIds.length === 0) {
+      return false;
+    }
+
+    return currentRoundQuestionIds.every(questionId =>
+      this.usedQuestionIds.includes(questionId)
+    );
+  }
+
+  private moveToNextRoundIfNeeded(): void {
+    if (!this.isCurrentRoundFinished()) {
+      return;
+    }
+
+    const nextRoundIndex = this.currentRoundIndex + 1;
+
+    if (nextRoundIndex >= this.roundIds.length) {
+      return;
+    }
+
+    this.currentRoundIndex = nextRoundIndex;
+
+    const nextRoundId = this.roundIds[this.currentRoundIndex];
+
+    this.currentRound = null;
+    this.clearSelectedQuestion();
+
+    this.loadRound(nextRoundId);
+
+    this.cdr.detectChanges();
+  }
+
+  private clearSelectedQuestion(): void {
+    this.selectedQuestion = null;
+    this.selectedCategoryName = '';
+    this.selectedCategoryDescription = '';
   }
 
   get buzzingPlayerName(): string {

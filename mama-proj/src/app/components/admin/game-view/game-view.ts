@@ -151,6 +151,8 @@ export class GameView implements OnInit, OnDestroy  {
       this.clearSelectedQuestion();
       this.loadSessionState();
 
+      this.moveToNextRoundIfNeeded();
+
       this.cdr.detectChanges();
     }, 5000);
   }
@@ -161,8 +163,20 @@ export class GameView implements OnInit, OnDestroy  {
     this.gamesApiService.getGame(this.gameId).subscribe({
       next: details => {
         this.gameDetails = details;
-        this.currentRoundIndex = this.gameDetails.sort((a, b) => a.roundid - b.roundid)[0]?.roundid;
-        this.loadRound(gameId, this.currentRoundIndex);
+
+        this.roundIds = this.getRoundIds(details);
+        this.currentRoundIndex = 0;
+
+        const firstRoundId = this.roundIds[this.currentRoundIndex];
+
+        if (!firstRoundId) {
+          this.errorMessage = 'No rounds found';
+          this.isLoading = false;
+          this.cdr.markForCheck();
+          return;
+        }
+
+        this.loadRound(gameId, firstRoundId);
         this.cdr.markForCheck();
       },
       error: error => {
@@ -451,6 +465,54 @@ export class GameView implements OnInit, OnDestroy  {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private getCurrentRoundQuestionIds(): number[] {
+    if (!this.currentRound) {
+      return [];
+    }
+
+    return this.currentRound.categories
+      .flatMap(category => category.questions)
+      .map(question => question.id);
+  }
+
+  private isCurrentRoundFinished(): boolean {
+    const currentRoundQuestionIds = this.getCurrentRoundQuestionIds();
+
+    if (currentRoundQuestionIds.length === 0) {
+      return false;
+    }
+
+    return currentRoundQuestionIds.every(questionId =>
+      this.usedQuestionIds.includes(questionId)
+    );
+  }
+
+  private moveToNextRoundIfNeeded(): void {
+    if (!this.isCurrentRoundFinished()) {
+      return;
+    }
+
+    const nextRoundIndex = this.currentRoundIndex + 1;
+
+    if (nextRoundIndex >= this.roundIds.length) {
+      this.adminMessage = 'All rounds completed.';
+      return;
+    }
+
+    this.currentRoundIndex = nextRoundIndex;
+
+    const nextRoundId = this.roundIds[this.currentRoundIndex];
+
+    this.adminMessage = `Round ${this.currentRoundIndex + 1} started.`;
+
+    this.currentRound = null;
+    this.clearSelectedQuestion();
+
+    this.loadRound(this.gameId, nextRoundId);
+
+    this.cdr.detectChanges();
   }
 
   get buzzingPlayerName(): string {
