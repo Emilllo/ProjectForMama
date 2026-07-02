@@ -58,7 +58,7 @@
                   <button
                     type="button"
                     class="btn btn-primary"
-                    (click)="joinAsPresenter()"
+                    (click)="openPresenterCodePrompt()"
                   >
                     Join as presenter
                   </button>
@@ -210,5 +210,40 @@
         }
       </div>
     </section>
+  }
+
+  @if (showPresenterCodePrompt) {
+    <div class="presenter-code-overlay" (click)="cancelPresenterCodePrompt()">
+      <div class="presenter-code-box" (click)="$event.stopPropagation()">
+        <h3>Join as presenter</h3>
+        <p>Enter the room code</p>
+
+        <input
+          #codeInput
+          type="text"
+          class="presenter-code-input"
+          placeholder="e.g. 221856"
+          (keyup.enter)="confirmJoinAsPresenter(codeInput.value)"
+        />
+
+        <div class="presenter-code-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="cancelPresenterCodePrompt()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="confirmJoinAsPresenter(codeInput.value)"
+          >
+            Open presenter view
+          </button>
+        </div>
+      </div>
+    </div>
   }
 </div>

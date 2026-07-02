@@ -357,13 +357,27 @@ export class Games implements OnInit {
     });
   }
 
-  joinAsPresenter(): void {
-    const code = prompt('Enter room code');
+  showPresenterCodePrompt = false;
 
-    if (!code) {
+  openPresenterCodePrompt(): void {
+    this.showPresenterCodePrompt = true;
+  }
+
+  cancelPresenterCodePrompt(): void {
+    this.showPresenterCodePrompt = false;
+  }
+
+  confirmJoinAsPresenter(code: string): void {
+    const trimmedCode = code.trim();
+
+    if (!trimmedCode) {
       return;
     }
 
-    window.open(`/presenter/join/${encodeURIComponent(code.trim())}`, '_blank');
+    this.showPresenterCodePrompt = false;
+
+    // Must be called synchronously inside this click handler (no prompt()/async
+    // work in between) or browsers silently block the popup.
+    window.open(`/presenter/join/${encodeURIComponent(trimmedCode)}`, '_blank');
   }
 }

@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SessionsApiService } from '../../../shared/services/sessions-api.service';
-import { SessionRealtimeService } from '../../../shared/services/session-realtime.service';
+import { SessionRealtimeConnection, SessionRealtimeService } from '../../../shared/services/session-realtime.service';
 
 import {
   GameSession,
@@ -30,7 +30,7 @@ export class PlayerSession implements OnInit, OnDestroy {
   isBuzzing = false;
   errorMessage = '';
 
-  private realtimeSocket: WebSocket | null = null;
+  private realtimeSocket: SessionRealtimeConnection | null = null;
 
   constructor(
     private route: ActivatedRoute,

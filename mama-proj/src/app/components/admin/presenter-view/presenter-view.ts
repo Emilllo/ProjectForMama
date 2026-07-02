@@ -12,7 +12,7 @@ import { QuestionsApiService } from '../../../shared/services/questions-api.serv
 import {
   SessionsApiService
 } from '../../../shared/services/sessions-api.service';
-import { SessionRealtimeService } from '../../../shared/services/session-realtime.service';
+import { SessionRealtimeConnection, SessionRealtimeService } from '../../../shared/services/session-realtime.service';
 
 @Component({
   selector: 'app-presenter-view',
@@ -54,7 +54,7 @@ export class PresenterView implements OnInit, OnDestroy {
   private lastBuzzingPlayerId: number | null = null;
   private isRevealTimerRunning = false;
 
-  private realtimeSocket: WebSocket | null = null;
+  private realtimeSocket: SessionRealtimeConnection | null = null;
 
 
   constructor(

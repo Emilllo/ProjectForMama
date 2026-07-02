@@ -11,7 +11,7 @@ import { QuestionsApiService } from '../../../shared/services/questions-api.serv
 
 import { GameBoard } from '../../game/game-board/game-board';
 import { SessionsApiService } from '../../../shared/services/sessions-api.service';
-import { SessionRealtimeService } from '../../../shared/services/session-realtime.service';
+import { SessionRealtimeConnection, SessionRealtimeService } from '../../../shared/services/session-realtime.service';
 
 @Component({
   selector: 'app-game-view',
@@ -27,7 +27,7 @@ export class GameView implements OnInit, OnDestroy  {
 
   currentSession: GameSession | null = null;
 
-  private realtimeSocket: WebSocket | null = null;
+  private realtimeSocket: SessionRealtimeConnection | null = null;
 
   gameId: number = 0;
   sessionId: number | null = null;
