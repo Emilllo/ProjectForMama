@@ -364,13 +364,18 @@ export class Games implements OnInit {
       return;
     }
 
+    const presenterWindow = window.open('', '_blank');
+
     this.sessionsApiService.getSessionByCode(code.trim()).subscribe({
       next: session => {
-        window.open(`/presenter/session/${session.id}`, '_blank');
+        if (presenterWindow) {
+          presenterWindow.location.href = `/presenter/session/${session.id}`;
+        }
       },
       error: error => {
         console.error(error);
         this.errorMessage = 'Session not found';
+        presenterWindow?.close();
         this.cdr.detectChanges();
       }
     });
