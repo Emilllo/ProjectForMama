@@ -357,22 +357,27 @@ export class Games implements OnInit {
     });
   }
 
-  joinAsPresenter(): void {
-    const code = prompt('Enter room code');
+  showPresenterCodePrompt = false;
+  presenterCode = '';
 
-    if (!code) {
-      return;
-    }
+  openPresenterCodePrompt(): void {
+    this.presenterCode = '';
+    this.showPresenterCodePrompt = true;
+  }
 
-    this.sessionsApiService.getSessionByCode(code.trim()).subscribe({
-      next: session => {
-        window.open(`/presenter/session/${session.id}`, '_blank');
-      },
-      error: error => {
-        console.error(error);
-        this.errorMessage = 'Session not found';
-        this.cdr.detectChanges();
-      }
-    });
+  cancelPresenterCodePrompt(): void {
+    this.showPresenterCodePrompt = false;
+  }
+
+  onPresenterCodeInput(value: string): void {
+    this.presenterCode = value.trim();
+  }
+
+  get presenterJoinHref(): string | null {
+    return this.presenterCode ? `/presenter/join/${encodeURIComponent(this.presenterCode)}` : null;
+  }
+
+  closePresenterCodePromptAfterClick(): void {
+    this.showPresenterCodePrompt = false;
   }
 }
